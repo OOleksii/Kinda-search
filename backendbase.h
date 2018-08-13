@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QThreadPool>
+#include "resultsmodel.h"
 class BackendBase: public QObject
 {
     Q_OBJECT
@@ -41,7 +42,7 @@ private:
     int m_maxThreadCount{4};
     QString m_searchRequest{"Daimler"};
     int m_maxSearchUrlCount {1};
-    int m_currentlySearched{0};
+    ResultsModel resultsModel;
 signals:
     void urlChanged();
     void maxThreadCountChanged();

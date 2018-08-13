@@ -20,12 +20,13 @@ signals:
     void finishedParsing();
     void moreSearchData(QStringList newUrls);
     void foundResult(bool result, int error);
+    void finished( int returnCode = 0);
 private:
     QString m_url;
-    QNetworkAccessManager * m_networkAccesMenager;
     QNetworkReply* m_reply;
     QString m_searchReques;
     QStringList scanURL(QString page);
+    QString forbidenCharacters {"*?\"<>|&%'#[]+= "};
 };
 
 #endif // SCANWORKER_H

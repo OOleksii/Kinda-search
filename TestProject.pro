@@ -5,7 +5,8 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     backendbase.cpp \
-    scanworker.cpp
+    scanworker.cpp \
+    resultsmodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -33,4 +34,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     backendbase.h \
-    scanworker.h
+    scanworker.h \
+    resultsmodel.h

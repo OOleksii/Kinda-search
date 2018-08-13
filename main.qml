@@ -104,19 +104,33 @@ ApplicationWindow {
         }
     }
 
-    ListView {
+    TableView  {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.topMargin: 120
         anchors.leftMargin: 340
 
-        width: 200; height: 200
+        width: 250; height: 200
 
-        model: backendBase.resultsList
-        delegate: Rectangle {
-            height: 50
-            width: 200
-            Text { text: modelData }
+        model: resultsModel
+
+        TableViewColumn {
+            role: "URL"
+            title: "Url"
+            width: 150
         }
+        TableViewColumn {
+            role: "status"
+            title: "Status"
+            width: 100
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -10
+            color: "transparent"
+            border.width: 1
+        }
+
     }
 }

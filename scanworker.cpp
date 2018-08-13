@@ -5,28 +5,26 @@
 #include <QRegExp>
 #include <QStringList>
 #include <QRegularExpression>
+#include <QEventLoop>
 ScanWorker::ScanWorker(QObject *parent, QString url, QString request)
     : QObject(parent), m_url(url), m_searchReques(request)
 {
-    setAutoDelete(false);
+    setAutoDelete(true);
 }
 
 ScanWorker::~ScanWorker()
 {
-    setAutoDelete(true);
-    delete m_networkAccesMenager;
-    if(nullptr!=m_reply)
-    {
-        delete m_reply;
-    }
 }
 
 void ScanWorker::run()
 {
-    m_networkAccesMenager = new QNetworkAccessManager(this);
-    m_reply = m_networkAccesMenager->get(QNetworkRequest(QUrl(m_url)));
+    QNetworkAccessManager network;
 
+    QEventLoop loop;
+    m_reply = network.get(QNetworkRequest(QUrl(m_url)));
     connect(m_reply, &QNetworkReply::finished, this, &ScanWorker::downloadFinished);
+    connect(this, &ScanWorker::finished,& loop,&QEventLoop::exit);
+    loop.exec();
 }
 
 void ScanWorker::downloadFinished()
@@ -36,7 +34,7 @@ void ScanWorker::downloadFinished()
 
     QNetworkReply::NetworkError networkError = m_reply->error();
     foundResult(str.contains(m_searchReques), networkError== QNetworkReply::NetworkError::NoError );
-
+    qDebug () << m_url;
     if (networkError== QNetworkReply::NetworkError::NoError)
     {
         QStringList urlList = scanURL(str);
@@ -45,12 +43,26 @@ void ScanWorker::downloadFinished()
             emit moreSearchData(urlList);
         }
     }
+    m_reply->deleteLater();
+    emit finished();
 }
 
 QStringList ScanWorker::scanURL(QString page)
 {
-    QRegularExpression reg("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9]\.[^\s]{2,})");
+    QString http("http");
+    int start = 0, end = 0;
+    QStringList result;
 
-    QRegularExpressionMatch match = reg.match(page);
-    return  match.capturedTexts();
+    while (page.contains(http)||page.contains(http))
+    {
+        start = page.indexOf(http);
+        end = start +1;
+        while ( (end < page.size()) && (!forbidenCharacters.contains(page[end])))
+        {
+            ++end;
+        }
+        result << page.mid(start, end-start);
+        page.remove(start,end-start);
+    }
+    return  result;
 }
