@@ -1,15 +1,16 @@
 #include "resultsmodel.h"
+#include <QDebug>
 
-//Result::Result(QObject *parent, QString Url):QObject (parent)
-//{
-//    m_URL =Url;
-//}
+Result::Result(QString Url, QObject *parent ):QObject (parent),m_URL(Url)
+{
 
-//Result::~Result()
-//{
+}
 
-//}
-ResultsModel::ResultsModel()
+Result::~Result()
+{
+
+}
+ResultsModel::ResultsModel(QObject *parent):QAbstractTableModel(parent)
 {
     m_data.clear();
 }
@@ -28,41 +29,49 @@ int ResultsModel::columnCount(const QModelIndex &parent) const
 
 QVariant ResultsModel::data(const QModelIndex &index, int role) const
 {
-    switch(index.column())
+    qDebug () <<index<< role <<index.row();
+    switch(role)
     {
-        case 0:
-            return m_data[index.row()].getUrl();
-        case 1:
-            return  m_data[index.row()].getStatus();
+        case Url:
+            return m_data[index.row()]->getUrl();
+        case status:
+            return  m_data[index.row()]->getStatus();
         default:
             return QVariant();
     }
 }
 
-void ResultsModel::insertRow(QString Url)
-{
-//    m_data <<Result(Url);
-}
-
 QHash<int, QByteArray> ResultsModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles[0] = "Url";
+    roles[0] = "URL";
     roles[1] = "status";
     return roles;
 
 }
 
-void ResultsModel::dataChanged()
+void ResultsModel::insert(Result * res)
 {
-
+   QMutexLocker lock(&dataLock);
+   beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
+   m_data<<res;
+   connect(res, &Result::newData, this, &ResultsModel::resultsModelChanged);
+   endInsertRows();
+   emit resultsModelChanged();
 }
+
+Result *ResultsModel::getLast()
+{
+    return nullptr;
+}
+
 
 void Result::results(bool found, int error)
 {
     m_pending = false;
     m_found = found;
     m_error = error;
+    emit newData();
 }
 
 

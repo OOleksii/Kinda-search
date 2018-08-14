@@ -15,6 +15,7 @@ class BackendBase: public QObject
     Q_PROPERTY(QString searchRequest READ searchRequest WRITE setSearchRequest NOTIFY searchRequestChanged)
     Q_PROPERTY(QString maxThreadCount READ maxThreadCount WRITE setMaxThreadCount NOTIFY maxThreadCountChanged)
     Q_PROPERTY(QString maxSearchUrlCount READ maxSearchUrlCount WRITE setMaxSearchUrlCount NOTIFY maxSearchUrlCountChanged)
+    Q_PROPERTY(ResultsModel * resultsModel READ resultsModel NOTIFY resultsModelChanged)
 public slots:
     Q_INVOKABLE void start();
 public:
@@ -31,7 +32,7 @@ public:
     void setMaxSearchUrlCount(QString value);
 
     QString maxSearchUrlCount() const;
-
+    ResultsModel *resultsModel();
 private:
     QString m_url {"http://www.example.org"};
     QString m_request{"background-color"};
@@ -42,12 +43,13 @@ private:
     int m_maxThreadCount{4};
     QString m_searchRequest{"Daimler"};
     int m_maxSearchUrlCount {1};
-    ResultsModel resultsModel;
+    ResultsModel m_resultsModel;
 signals:
     void urlChanged();
     void maxThreadCountChanged();
     void searchRequestChanged();
     void maxSearchUrlCountChanged();
+    void resultsModelChanged();
 public slots:
     void moreSearchData(QStringList newUrls);
 };

@@ -2,12 +2,13 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
 import app.backend 1.0
+import app.result 1.0
 
 ApplicationWindow {
     id:root
     visible: true
-    width: 640
-    height: 480
+    width: 1040
+    height: 880
     title: qsTr("Kinda Web Search")
 
     Backendbase {
@@ -110,27 +111,19 @@ ApplicationWindow {
         anchors.topMargin: 120
         anchors.leftMargin: 340
 
-        width: 250; height: 200
+        width: 350; height: 400
 
-        model: resultsModel
+        model: backendBase.resultsModel
 
         TableViewColumn {
             role: "URL"
             title: "Url"
-            width: 150
+            width: 250
         }
         TableViewColumn {
             role: "status"
             title: "Status"
             width: 100
         }
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -10
-            color: "transparent"
-            border.width: 1
-        }
-
     }
 }

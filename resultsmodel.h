@@ -1,15 +1,18 @@
 #ifndef RESULTSMODEL_H
 #define RESULTSMODEL_H
 #include <QAbstractListModel>
+#include <QAbstractTableModel>
+#include <QAbstractItemModel>
 #include <QList>
-
-class Result: public QObject
+#include <QMutex>
+#include <QMutexLocker>
+class Result :public QObject
 {
     Q_OBJECT
 
 public:
-//    Result (QObject *parent = nullptr, QString Url = "");
-//    ~Result();
+    Result ( QString Url, QObject *parent = nullptr);
+    ~Result();
     QString getUrl() const;
     QString getStatus() const;
 private:
@@ -19,27 +22,32 @@ private:
     bool m_pending {true};
 public slots:
     void results(bool found, int error);
+signals:
+    void newData();
 };
 
 class ResultsModel: public QAbstractTableModel
 {
+    Q_OBJECT
+
     enum Role
     {
-        none,
-        Url,
-        Status
+        Url = 0,
+        status =1
     };
 public:
-    ResultsModel();
+    ResultsModel(QObject *parent = nullptr);
     int rowCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
-    void insertRow(QString Url);
     QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
-public slots:
-    void dataChanged();
+    void insert(Result * res);
+    Result * getLast();
+    QMutex dataLock;
 private:
-    QList<Result> m_data;
+    QList<Result*> m_data;
+signals:
+    void resultsModelChanged();
 };
 
 #endif // RESULTSMODEL_H

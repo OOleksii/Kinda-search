@@ -17,7 +17,7 @@ BackendBase::BackendBase(QObject *parent): QObject(parent),
     threadpol.setMaxThreadCount(m_maxThreadCount);
     que.clear();
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("resultsModel", &resultsModel);
+    engine.rootContext()->setContextProperty("resultsModel", &m_resultsModel);
 
 }
 
@@ -71,10 +71,15 @@ QString BackendBase::maxSearchUrlCount() const
     return QString::number(m_maxSearchUrlCount);
 }
 
+ResultsModel* BackendBase::resultsModel()
+{
+    return & m_resultsModel;
+}
+
 void BackendBase::moreSearchData(QStringList newUrls)
 {
     QMutexLocker lock(&queMutex);
-    if (resultsModel.rowCount() > m_maxSearchUrlCount) // need if for stop
+    if (m_resultsModel.rowCount() > m_maxSearchUrlCount) // need if for stop
     {
         return;
     }
@@ -82,9 +87,12 @@ void BackendBase::moreSearchData(QStringList newUrls)
     {
         ScanWorker * newWorker = new ScanWorker(nullptr, url , m_searchRequest);
         connect(newWorker, &ScanWorker::moreSearchData, this, &BackendBase::moreSearchData, Qt::ConnectionType::QueuedConnection );
-//        Result newResult(url);
-//        connect(newWorker, &ScanWorker::foundResult, &newResult, &Result::result, Qt::ConnectionType::QueuedConnection );
-//        resultsModel.insertRow(url);
+
+        Result* newResult = new Result(url);
+
+        connect(newWorker, &ScanWorker::foundResult, newResult, &Result::results, Qt::ConnectionType::QueuedConnection );
+
+        m_resultsModel.insert(newResult);
 
         threadpol.start(newWorker);
     }
