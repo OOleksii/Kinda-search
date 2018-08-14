@@ -18,6 +18,7 @@ class BackendBase: public QObject
     Q_PROPERTY(ResultsModel * resultsModel READ resultsModel NOTIFY resultsModelChanged)
 public slots:
     Q_INVOKABLE void start();
+    Q_INVOKABLE void stop();
 public:
     BackendBase(QObject *parent = nullptr);
     ~BackendBase();
@@ -35,15 +36,15 @@ public:
     ResultsModel *resultsModel();
 private:
     QString m_url {"http://www.example.org"};
-    QString m_request{"background-color"};
     QSharedPointer<QNetworkAccessManager> m_networkAccesMenager;
     QStringList que;
     QMutex queMutex;
     QThreadPool threadpol;
     int m_maxThreadCount{4};
-    QString m_searchRequest{"Daimler"};
-    int m_maxSearchUrlCount {1};
+    QString m_searchRequest{"home"};
+    int m_maxSearchUrlCount {10};
     ResultsModel m_resultsModel;
+    bool m_stopSearch{false};
 signals:
     void urlChanged();
     void maxThreadCountChanged();

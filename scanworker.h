@@ -19,7 +19,7 @@ signals:
     void finishedDownload();
     void finishedParsing();
     void moreSearchData(QStringList newUrls);
-    void foundResult(bool result, int error);
+    void foundResult(bool result, int error, QString errorName);
     void finished( int returnCode = 0);
 private:
     QString m_url;

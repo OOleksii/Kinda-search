@@ -29,7 +29,6 @@ int ResultsModel::columnCount(const QModelIndex &parent) const
 
 QVariant ResultsModel::data(const QModelIndex &index, int role) const
 {
-    qDebug () <<index<< role <<index.row();
     switch(role)
     {
         case Url:
@@ -55,9 +54,9 @@ void ResultsModel::insert(Result * res)
    QMutexLocker lock(&dataLock);
    beginInsertRows(QModelIndex(), m_data.size(), m_data.size());
    m_data<<res;
-   connect(res, &Result::newData, this, &ResultsModel::resultsModelChanged);
+   connect(res, &Result::newData, this, &ResultsModel::contentChanged);
    endInsertRows();
-   emit resultsModelChanged();
+   emit dataChanged(createIndex(0,0),createIndex(m_data.size(),1));
 }
 
 Result *ResultsModel::getLast()
@@ -65,12 +64,33 @@ Result *ResultsModel::getLast()
     return nullptr;
 }
 
+void ResultsModel::clear()
+{
+    beginRemoveRows(QModelIndex(), 0,m_data.size());
+    for(Result* data :m_data)
+    {
+        if (data!=nullptr)
+        {
+            delete data;
+        }
+    }
+    m_data.clear();
+    endRemoveRows();
+}
 
-void Result::results(bool found, int error)
+void ResultsModel::contentChanged()
+{
+       QMutexLocker lock(&dataLock);
+       emit dataChanged(createIndex(0,0),createIndex(m_data.size(),1));
+}
+
+
+void Result::results(bool found, int error, QString errorCode)
 {
     m_pending = false;
     m_found = found;
     m_error = error;
+    m_errorCode = errorCode;
     emit newData();
 }
 
@@ -90,7 +110,7 @@ QString Result::getStatus() const
     } else
     if (m_error != 0)
     {
-        return "Error " + QString::number(m_error);
+        return m_errorCode;
     } else
     {
         return m_found? "Yes":"No";

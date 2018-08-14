@@ -104,26 +104,35 @@ ApplicationWindow {
             backendBase.start()
         }
     }
-
+    Button {
+        text: "Stop"
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.topMargin: 240
+        anchors.leftMargin: 40
+        onClicked: {
+            backendBase.stop()
+        }
+    }
     TableView  {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.topMargin: 120
         anchors.leftMargin: 340
 
-        width: 350; height: 400
+        width: 600; height: 400
 
         model: backendBase.resultsModel
 
         TableViewColumn {
             role: "URL"
             title: "Url"
-            width: 250
+            width: 350
         }
         TableViewColumn {
             role: "status"
             title: "Status"
-            width: 100
+            width: 150
         }
     }
 }

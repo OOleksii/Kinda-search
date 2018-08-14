@@ -7,7 +7,14 @@
 void BackendBase::start()
 {
     que.clear();
+    m_stopSearch = false;
+    m_resultsModel.clear();
     moreSearchData(QStringList(m_url));
+}
+
+void BackendBase::stop()
+{
+    m_stopSearch = true;
 }
 
 BackendBase::BackendBase(QObject *parent): QObject(parent),
@@ -79,7 +86,7 @@ ResultsModel* BackendBase::resultsModel()
 void BackendBase::moreSearchData(QStringList newUrls)
 {
     QMutexLocker lock(&queMutex);
-    if (m_resultsModel.rowCount() > m_maxSearchUrlCount) // need if for stop
+    if ((m_resultsModel.rowCount() >= m_maxSearchUrlCount) || m_stopSearch) // need if for stop
     {
         return;
     }

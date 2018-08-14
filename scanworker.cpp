@@ -33,8 +33,7 @@ void ScanWorker::downloadFinished()
     QString str = QString::fromUtf8(siteText);
 
     QNetworkReply::NetworkError networkError = m_reply->error();
-    foundResult(str.contains(m_searchReques), networkError== QNetworkReply::NetworkError::NoError );
-    qDebug () << m_url;
+    foundResult(str.contains(m_searchReques), networkError!= QNetworkReply::NetworkError::NoError, m_reply->errorString() );
     if (networkError== QNetworkReply::NetworkError::NoError)
     {
         QStringList urlList = scanURL(str);

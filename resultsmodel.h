@@ -20,8 +20,9 @@ private:
     bool m_found{false};
     int m_error;
     bool m_pending {true};
+    QString m_errorCode;
 public slots:
-    void results(bool found, int error);
+    void results(bool found, int error, QString errorCode);
 signals:
     void newData();
 };
@@ -44,10 +45,13 @@ public:
     void insert(Result * res);
     Result * getLast();
     QMutex dataLock;
+    void clear();
 private:
     QList<Result*> m_data;
 signals:
     void resultsModelChanged();
+public slots:
+    void contentChanged();
 };
 
 #endif // RESULTSMODEL_H
